@@ -1,0 +1,14 @@
+{
+    "name": "LPG",
+    "version": "0.1.1",
+    "builds": [
+        {
+            "chipFamily": "ESP32-S2",
+            "ota": {
+                "md5": "4522282afba2fa743ed0bd77bbe3dc85",
+                "path": "https://raw.githubusercontent.com/hadleyrich/eshey/refs/heads/main/lpg/firmware-v0.1.1-esp32s2.bin",
+                "summary": "Version 0.1.1"
+            }
+        }
+    ]
+}

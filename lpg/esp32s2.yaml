@@ -1,0 +1,148 @@
+# LPG m3  = 1.8315 kg
+# LPG 1kg = 0.546 m3
+
+substitutions:
+  name: "lpg"
+  friendly_name: "LPG"
+  metrics_auth: ""
+esphome:
+  name: "${name}"
+  friendly_name: "${friendly_name}"
+  project:
+    name: "nice.lpg"
+    version: "0.1.0"
+esp32:
+  board: esp32-s2-saola-1
+  framework:
+    type: esp-idf
+dashboard_import:
+  package_import_url: github://hadleyrich/eshey/lpg/esp32s2.yaml
+  import_full_config: false
+web_server:
+  port: 80
+  version: 3
+  auth:
+    username: admin
+    password: lpg
+improv_serial:
+logger:
+# Enable Home Assistant API
+api:
+http_request:
+ota:
+- platform: esphome
+  password: ""
+- platform: http_request
+update:
+- platform: http_request
+  name: Firmware Update
+  source: https://raw.githubusercontent.com/hadleyrich/eshey/refs/heads/main/lpg/manifest.json
+wifi:
+  ap:
+    ssid: "LPG Fallback Hotspot"
+captive_portal:
+time:
+- platform: sntp
+  id: sntp_time
+  timezone: Pacific/Auckland
+  servers:
+  - 0.pool.ntp.org
+  - 1.pool.ntp.org
+globals:
+- id: channel1_current_bottle_start_weight
+  type: int
+  restore_value: yes
+  initial_value: '0'
+- id: channel1_current_bottle_used
+  type: int
+  restore_value: yes
+  initial_value: '0'
+button:
+- platform: template
+  id: do_http
+  name: "Send HTTP Request"
+  icon: mdi:gauge-empty
+  on_press:
+  - http_request.post:
+      url: https://vm.nice.nz/api/v1/import/prometheus
+      headers:
+        Authorization: Bearer ${metrics_auth}
+      body: |
+        'weight{device="baz",scale=1} 12.3 1747298637799'
+      # sensor:
+# - platform: hx711
+#   id: channel1_scale_value_raw
+#   name: "Scale 1 Value Raw"
+#   icon: mdi:table-large
+#   dout_pin: 20
+#   clk_pin: 19
+#   gain: 128
+#   update_interval: 5s
+#   internal: True
+#   filters:
+#     - quantile:
+#         window_size: 10
+#         send_every: 5
+#         send_first_at: 5
+#         quantile: .9
+#   on_value:
+#     then:
+#       - sensor.template.publish:
+#           id: channel1_scale_value
+#           state: !lambda 'return id(channel1_scale_value_raw).state;'
+#   accuracy_decimals: 0
+
+# # Map value to KG
+# - platform: template
+#   id: channel1_scale_value
+#   name: "Scale 1 Value"
+#   icon: mdi:scale-balance
+#   internal: False
+#   update_interval: 15s
+#   filters:
+#     # Apply tare
+#     - lambda: 'return x + id(channel1_tare_difference);'
+#     - calibrate_linear:
+#         - 172000 -> 0
+#         #- 320000 -> 7.04
+#         #- 719758 -> 25.82
+#         #- 1186522 -> 47.9
+#         - 2613005 -> 115.3
+#     - lambda: |-
+#         if (x <= 0.1) {
+#           return 0.0;
+#         } else {
+#           return x;
+#         }
+#   on_value:
+#     then:
+#       - sensor.template.publish:
+#           id: channel1_kg_used
+#           state: !lambda 'return id(channel1_scale_value).state;'
+#   device_class: "weight"
+#   state_class: "measurement"
+#   unit_of_measurement: kg
+#   accuracy_decimals: 2
+number:
+- platform: template
+  step: 1
+  min_value: 0
+  max_value: 100000
+  id: channel1_initial_zero
+  name: "Scale 1 Initial Zero"
+  icon: mdi:home
+  update_interval: 60s
+  internal: True
+  restore_value: True
+  optimistic: True
+- platform: template
+  id: channel1_tare_difference
+  name: "Scale 1 Tare Difference"
+  icon: mdi:vector-difference
+  step: 1
+  min_value: 0
+  max_value: 100000
+  update_interval: 60s
+  internal: True
+  restore_value: True
+  optimistic: True
