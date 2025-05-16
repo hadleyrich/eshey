@@ -26,6 +26,7 @@ web_server:
     password: lpg
 improv_serial:
 logger:
+  level: DEBUG
 # Enable Home Assistant API
 api:
 http_request:
