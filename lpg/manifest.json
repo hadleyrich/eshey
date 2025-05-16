@@ -5,7 +5,7 @@
         {
             "chipFamily": "ESP32-S2",
             "ota": {
-                "md5": "463fe489338ca73d13207f23f2c12999",
+                "md5": "58e6518f7480f51d8405e0835a38bd69",
                 "path": "https://raw.githubusercontent.com/hadleyrich/eshey/refs/heads/main/lpg/firmware-v0.1.1-esp32s2.bin",
                 "summary": "Version 0.1.1"
             }
